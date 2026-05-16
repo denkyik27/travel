@@ -1,0 +1,1123 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Fun Air — World Flight Booking</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#0a0c14;
+  --ink2:#0f1120;
+  --glass:rgba(255,255,255,0.04);
+  --glass2:rgba(255,255,255,0.07);
+  --border:rgba(255,255,255,0.08);
+  --border2:rgba(255,255,255,0.14);
+  --accent:#00d4ff;
+  --accent2:#7b5ea7;
+  --gold:#f5c842;
+  --green:#00e676;
+  --orange:#ff6b35;
+  --text:#e8edf5;
+  --muted:rgba(200,215,240,0.45);
+  --muted2:rgba(200,215,240,0.25);
+  --r:16px;
+  --r2:24px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);color:var(--text);font-family:'Space Grotesk',sans-serif;-webkit-font-smoothing:antialiased}
+ 
+body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+ 
+#intro{position:fixed;inset:0;z-index:800;background:radial-gradient(ellipse at 50% 55%,#0d1428 0%,#060a14 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;transition:opacity 1.2s ease,transform 1.2s ease}
+#intro.out{opacity:0;pointer-events:none;transform:scale(1.04)}
+.intro-tagline{font-family:'Syne',sans-serif;font-size:clamp(10px,1.4vw,14px);letter-spacing:6px;color:var(--muted);text-transform:uppercase;margin-bottom:24px;animation:fadeUp .8s .4s both}
+.intro-logo{font-family:'Syne',sans-serif;font-size:clamp(52px,8vw,110px);font-weight:800;letter-spacing:-2px;color:#fff;line-height:1;animation:fadeUp .8s .6s both;text-align:center}
+.intro-logo span{color:var(--accent)}
+.intro-sub{font-size:clamp(11px,1.5vw,15px);color:var(--muted);letter-spacing:4px;margin-top:16px;text-transform:uppercase;animation:fadeUp .8s .8s both}
+.intro-orb{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,212,255,.06) 0%,transparent 70%);pointer-events:none;animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.1);opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.intro-enter{margin-top:48px;display:flex;align-items:center;gap:12px;animation:fadeUp .8s 1.2s both;cursor:pointer}
+.intro-enter-line{width:40px;height:1px;background:var(--accent);transition:width .3s}
+.intro-enter:hover .intro-enter-line{width:60px}
+.intro-enter-text{font-size:11px;letter-spacing:4px;color:var(--accent);text-transform:uppercase}
+.intro-dots{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
+.intro-dot{width:5px;height:5px;border-radius:50%;background:var(--border2);animation:dotPulse 2s ease-in-out infinite}
+.intro-dot:nth-child(2){animation-delay:.3s}
+.intro-dot:nth-child(3){animation-delay:.6s}
+@keyframes dotPulse{0%,100%{opacity:.3}50%{opacity:1;background:var(--accent)}}
+ 
+#app{position:fixed;inset:0;z-index:1;opacity:0;transition:opacity 1s;display:flex;flex-direction:column}
+#app.show{opacity:1}
+ 
+.topbar{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(10,12,20,0.9);border-bottom:1px solid var(--border);backdrop-filter:blur(24px);flex-shrink:0;position:relative;z-index:100}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:#fff;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px}
+.logo-icon{width:32px;height:32px;background:var(--accent);border-radius:8px;display:grid;place-items:center;font-size:16px;box-shadow:0 0 20px rgba(0,212,255,.4)}
+.logo em{color:var(--accent);font-style:normal}
+.top-nav{display:flex;gap:2px;background:var(--glass);border:1px solid var(--border);border-radius:30px;padding:4px}
+.nav-btn{padding:6px 18px;border-radius:24px;border:none;background:transparent;color:var(--muted);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .25s;font-family:'Space Grotesk',sans-serif}
+.nav-btn.active,.nav-btn:hover{background:var(--glass2);color:#fff}
+.nav-btn.active{color:var(--accent)}
+.top-right{display:flex;align-items:center;gap:20px}
+.live-badge{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--green);letter-spacing:1.5px}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:livePulse 2s infinite}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.3}}
+.time-display{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:1px}
+ 
+.body{flex:1;display:grid;grid-template-columns:1fr 400px;overflow:hidden}
+ 
+.globe-area{position:relative;overflow:hidden;background:radial-gradient(ellipse at 45% 50%,#0c1628 0%,#050810 100%);display:flex;align-items:center;justify-content:center}
+#globeCanvas{display:block;border-radius:50%;cursor:grab;transition:box-shadow .5s}
+#globeCanvas:active{cursor:grabbing}
+#globeCanvas.has-route{box-shadow:0 0 0 1px rgba(0,212,255,.1),0 0 80px rgba(0,212,255,.08),0 0 200px rgba(0,212,255,.04)}
+ 
+.globe-overlay{position:absolute;bottom:24px;left:24px;display:flex;flex-direction:column;gap:8px}
+.globe-pill{display:flex;align-items:center;gap:8px;background:rgba(10,12,20,.85);border:1px solid var(--border);border-radius:30px;padding:7px 16px;backdrop-filter:blur(16px);font-size:11px;color:var(--muted);letter-spacing:.5px;transition:all .4s}
+.globe-pill.active{border-color:rgba(0,212,255,.3);color:var(--accent)}
+.globe-pill-dot{width:6px;height:6px;border-radius:50%;background:var(--muted2);transition:all .4s}
+.globe-pill.active .globe-pill-dot{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.globe-interact{position:absolute;top:24px;left:24px;background:rgba(10,12,20,.75);border:1px solid var(--border);border-radius:12px;padding:12px 16px;backdrop-filter:blur(16px)}
+.gi-title{font-size:9px;letter-spacing:2px;color:var(--muted2);text-transform:uppercase;margin-bottom:6px}
+.gi-hint{font-size:10px;color:var(--muted);line-height:1.7}
+ 
+.sidebar{background:var(--ink2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sb-scroll{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;padding:20px}
+.sb-scroll::-webkit-scrollbar{width:2px}
+.sb-scroll::-webkit-scrollbar-thumb{background:var(--border)}
+ 
+.sb-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sb-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.sb-badge{background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);border-radius:20px;padding:3px 10px;font-size:9px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;font-family:'DM Mono',monospace}
+ 
+.route-card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:16px;position:relative;overflow:hidden;transition:border-color .3s}
+.route-card.active{border-color:rgba(0,212,255,.25)}
+.route-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,212,255,.03),transparent);pointer-events:none}
+.rc-inner{display:flex;align-items:center;gap:12px}
+.rc-city{flex:1}
+.rc-flag{font-size:22px;line-height:1;margin-bottom:4px}
+.rc-name{font-size:13px;font-weight:600;color:#fff}
+.rc-code{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:2px}
+.rc-middle{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
+.rc-line{display:flex;align-items:center;gap:4px;color:var(--muted2)}
+.rc-plane{font-size:16px;animation:planeBob 3s ease-in-out infinite}
+@keyframes planeBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.rc-duration{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;white-space:nowrap}
+.rc-dots{display:flex;gap:3px}
+.rc-dot{width:3px;height:3px;border-radius:50%;background:var(--muted2)}
+ 
+.field{margin-bottom:12px}
+.field-label{font-size:9px;letter-spacing:2.5px;color:var(--muted2);text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.field-label-dot{width:6px;height:6px;border-radius:50%}
+.field-label-dot.from{background:var(--green);box-shadow:0 0 6px var(--green)}
+.field-label-dot.to{background:var(--orange);box-shadow:0 0 6px var(--orange)}
+.sel-wrap{position:relative}
+select{width:100%;background:var(--glass);border:1px solid var(--border);color:var(--text);padding:11px 40px 11px 14px;border-radius:10px;font-family:'Space Grotesk',sans-serif;font-size:13px;outline:none;cursor:pointer;appearance:none;transition:all .25s}
+select:hover,select:focus{border-color:rgba(0,212,255,.4);background:rgba(0,212,255,.04);box-shadow:0 0 0 3px rgba(0,212,255,.06)}
+select option{background:#0f1120;color:#e8edf5}
+.sel-arr{position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted2)}
+ 
+.divider{height:1px;background:var(--border);margin:12px 0}
+ 
+.ticket{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;transition:all .3s}
+.ticket.has-data{border-color:rgba(0,212,255,.15)}
+.t-head{padding:10px 16px;background:rgba(0,212,255,.04);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.t-head-left{display:flex;align-items:center;gap:10px}
+.t-flight-num{font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);letter-spacing:2px}
+.t-airline{font-size:9px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase}
+.t-status{font-size:9px;color:var(--green);background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);border-radius:20px;padding:2px 8px;letter-spacing:.5px}
+.t-rows{padding:4px 0}
+.t-row{display:flex;justify-content:space-between;align-items:center;padding:7px 16px;border-bottom:1px solid rgba(255,255,255,.03)}
+.t-row:last-child{border:none}
+.t-lbl{font-size:9px;letter-spacing:1.5px;color:var(--muted2);text-transform:uppercase}
+.t-val{font-size:13px;color:var(--text);font-weight:500}
+.t-val.price{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--gold)}
+.t-val.time{font-family:'DM Mono',monospace;color:var(--accent);font-size:14px}
+.t-val.flight-time{color:var(--green);font-family:'DM Mono',monospace}
+ 
+.seats-box{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;animation:slideIn .4s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.seats-head{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.seats-head-left{display:flex;align-items:center;gap:8px}
+.seats-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff}
+.seats-count{font-size:9px;color:var(--muted2);letter-spacing:1px}
+.seat-legend{display:flex;gap:12px;padding:8px 16px;border-bottom:1px solid rgba(255,255,255,.03)}
+.sl-item{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--muted2)}
+.sl-sq{width:10px;height:10px;border-radius:2px}
+.sl-sq.a{background:rgba(0,212,255,.15);border:1px solid rgba(0,212,255,.4)}
+.sl-sq.t{background:rgba(255,255,255,.04);border:1px solid var(--border)}
+.sl-sq.s{background:var(--accent);border:1px solid var(--accent);box-shadow:0 0 6px rgba(0,212,255,.5)}
+.seat-plane{padding:12px 16px 14px}
+.cabin-lbl{font-size:8px;letter-spacing:2px;color:var(--muted2);text-align:center;margin-bottom:8px;text-transform:uppercase}
+.seat-grid{display:flex;flex-direction:column;gap:3px;align-items:center}
+.s-row{display:flex;align-items:center;gap:3px}
+.s-num{font-family:'DM Mono',monospace;font-size:7px;color:var(--muted2);width:12px;text-align:right;margin-right:2px}
+.aisle{width:12px}
+.seat{width:22px;height:22px;border-radius:4px;cursor:pointer;transition:all .15s;border:1px solid;display:grid;place-items:center;font-family:'DM Mono',monospace;font-size:6px;font-weight:500}
+.seat.a{background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.3);color:rgba(0,212,255,.5)}
+.seat.a:hover{background:rgba(0,212,255,.2);border-color:var(--accent);transform:scale(1.15);box-shadow:0 0 8px rgba(0,212,255,.3)}
+.seat.t{background:rgba(255,255,255,.03);border-color:var(--border);cursor:default;color:var(--muted2)}
+.seat.s{background:var(--accent);border-color:var(--accent);color:#000;box-shadow:0 0 10px rgba(0,212,255,.5);transform:scale(1.1);font-weight:700}
+.seat-info{padding:8px 16px;border-top:1px solid rgba(255,255,255,.03);font-size:10px;color:var(--accent);letter-spacing:.5px;text-align:center;min-height:30px;font-family:'DM Mono',monospace}
+ 
+.hotels-box{display:flex;flex-direction:column;gap:8px;animation:slideIn .4s ease}
+.hotels-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.hotel-card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:all .2s;cursor:pointer;text-decoration:none;display:block;position:relative}
+.hotel-card:hover{border-color:rgba(245,200,66,.3);background:rgba(245,200,66,.03);transform:translateX(4px)}
+.hotel-card::after{content:'↗';position:absolute;top:10px;right:12px;font-size:10px;color:rgba(245,200,66,.4)}
+.hc-inner{padding:12px 14px 10px;display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+.hc-name{font-size:12px;font-weight:600;color:#fff;margin-bottom:2px;padding-right:16px}
+.hc-loc{font-size:9px;color:var(--muted2);margin-bottom:5px}
+.hc-stars{font-size:10px;color:var(--gold)}
+.hc-right{text-align:right;flex-shrink:0}
+.hc-price{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--gold)}
+.hc-per{font-size:8px;color:var(--muted2);margin-top:1px}
+.hc-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:8px;letter-spacing:.5px;text-transform:uppercase;margin-top:4px}
+.hc-badge.top{background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.25);color:var(--gold)}
+.hc-badge.deal{background:rgba(0,230,118,.07);border:1px solid rgba(0,230,118,.2);color:var(--green)}
+.hc-badge.free{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);color:var(--accent)}
+.hc-tags{padding:0 14px 10px;display:flex;gap:4px;flex-wrap:wrap}
+.hc-tag{font-size:9px;color:var(--muted2);background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:20px;padding:2px 8px}
+ 
+.book-wrap{padding:16px 20px;background:var(--ink2);border-top:1px solid var(--border);flex-shrink:0}
+.book-btn{width:100%;background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000;border:none;padding:16px;border-radius:12px;font-family:'Syne',sans-serif;font-size:16px;font-weight:800;cursor:pointer;letter-spacing:1px;transition:all .25s;box-shadow:0 0 30px rgba(0,212,255,.2);position:relative;overflow:hidden}
+.book-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);pointer-events:none}
+.book-btn:hover{transform:translateY(-2px);box-shadow:0 4px 40px rgba(0,212,255,.4)}
+.book-btn:active{transform:translateY(0)}
+ 
+#modal{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(5,8,18,.92);backdrop-filter:blur(32px);opacity:0;visibility:hidden;transition:all .35s}
+#modal.open{opacity:1;visibility:visible}
+.modal-box{background:linear-gradient(160deg,#0d1225,#080e1c);border:1px solid var(--border2);border-radius:var(--r2);width:min(580px,96vw);max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 0 100px rgba(0,0,0,.8);scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.modal-box::-webkit-scrollbar{width:2px}
+.modal-box::-webkit-scrollbar-thumb{background:var(--border)}
+.modal-glow{position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+.modal-head{padding:24px 28px 18px;border-bottom:1px solid var(--border)}
+.modal-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;letter-spacing:-.5px;margin-bottom:2px}
+.modal-sub{font-size:11px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase}
+.modal-close{position:absolute;top:18px;right:18px;width:32px;height:32px;background:var(--glass);border:1px solid var(--border);border-radius:8px;cursor:pointer;color:var(--muted);display:grid;place-items:center;font-size:14px;transition:all .2s}
+.modal-close:hover{background:var(--glass2);color:#fff;transform:rotate(90deg)}
+.modal-body{padding:22px 28px 28px;display:flex;flex-direction:column;gap:18px}
+.flight-sum{background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.15);border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.fs-route{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.fs-detail{font-size:10px;color:var(--muted2);letter-spacing:.5px;margin-top:3px}
+.fs-price{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--gold)}
+.sec-title{font-size:9px;letter-spacing:3px;color:var(--muted2);text-transform:uppercase;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-field{display:flex;flex-direction:column;gap:5px}
+.form-field.full{grid-column:1/-1}
+.form-lbl{font-size:9px;letter-spacing:2px;color:var(--muted2);text-transform:uppercase}
+.form-input{background:var(--glass);border:1px solid var(--border);color:#fff;padding:10px 14px;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:13px;outline:none;transition:all .25s;width:100%}
+.form-input:focus{border-color:rgba(0,212,255,.5);box-shadow:0 0 0 3px rgba(0,212,255,.08);background:rgba(0,212,255,.04)}
+.form-input::placeholder{color:var(--muted2);font-size:12px}
+.form-input.err{border-color:rgba(255,100,80,.5)}
+.form-input.ok{border-color:rgba(0,230,118,.4)}
+.card-row{display:grid;grid-template-columns:1fr 90px 80px;gap:12px}
+.agree-row{display:flex;gap:10px;align-items:flex-start;font-size:11px;color:var(--muted);line-height:1.6;cursor:pointer}
+.agree-row input{accent-color:var(--accent);margin-top:2px;flex-shrink:0}
+.submit-btn{width:100%;background:linear-gradient(135deg,var(--accent),#0099cc);color:#000;border:none;padding:16px;border-radius:10px;font-family:'Syne',sans-serif;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:.5px;transition:all .25s;box-shadow:0 0 30px rgba(0,212,255,.2)}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 6px 40px rgba(0,212,255,.4)}
+.form-err{text-align:center;color:rgba(255,100,80,.8);font-size:11px;min-height:16px}
+.result{display:none;flex-direction:column;align-items:center;text-align:center;padding:48px 28px;gap:14px}
+.result.show{display:flex}
+.result-icon{font-size:56px;animation:popIn .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.result-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.5px}
+.result-msg{font-size:12px;color:var(--muted);line-height:1.8;white-space:pre-line}
+.result-btn{padding:10px 28px;border-radius:8px;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.06);color:var(--accent);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:6px}
+.result-btn:hover{background:rgba(0,212,255,.15)}
+.result-ok .result-title{color:var(--green)}
+.result-fail .result-title{color:#ff6b6b}
+ 
+#contactPage{position:fixed;inset:0;z-index:600;background:linear-gradient(160deg,#090d1f,#050812);opacity:0;visibility:hidden;transition:all .4s;overflow-y:auto;display:flex;flex-direction:column}
+#contactPage.show{opacity:1;visibility:visible}
+.contact-bar{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(9,13,31,.9);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);position:sticky;top:0;z-index:10}
+.contact-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:#fff}
+.contact-logo em{color:var(--accent);font-style:normal}
+.back-btn{display:flex;align-items:center;gap:8px;background:var(--glass);border:1px solid var(--border);color:var(--muted);padding:7px 18px;border-radius:8px;cursor:pointer;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;transition:all .2s}
+.back-btn:hover{border-color:rgba(0,212,255,.3);color:#fff}
+.contact-inner{max-width:1000px;margin:0 auto;width:100%;padding:60px 40px 80px}
+.contact-hero{text-align:center;margin-bottom:60px}
+.contact-pill{display:inline-block;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);border-radius:20px;padding:5px 18px;font-size:9px;letter-spacing:4px;color:var(--accent);text-transform:uppercase;margin-bottom:18px;font-family:'DM Mono',monospace}
+.contact-h1{font-family:'Syne',sans-serif;font-size:clamp(48px,7vw,88px);font-weight:800;letter-spacing:-3px;line-height:.9;color:#fff;margin-bottom:18px}
+.contact-h1 em{color:var(--accent);font-style:normal}
+.contact-tagline{font-size:14px;color:var(--muted);max-width:460px;margin:0 auto;line-height:1.7}
+.contact-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:50px}
+.cc{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:28px 24px;transition:all .25s;position:relative;overflow:hidden}
+.cc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.4),transparent);opacity:0;transition:opacity .25s}
+.cc:hover{border-color:rgba(0,212,255,.25);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.cc:hover::before{opacity:1}
+.cc-icon{font-size:28px;margin-bottom:14px}
+.cc-label{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:8px}
+.cc-val{font-size:13px;color:rgba(200,220,255,.7);line-height:1.7}
+.cc-sub{font-size:9px;color:var(--muted2);letter-spacing:.5px;margin-top:5px}
+.offices-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:40px}
+.office{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;transition:all .2s}
+.office:hover{border-color:var(--border2);background:var(--glass2)}
+.office-city{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--accent);margin-bottom:2px}
+.office-country{font-size:9px;letter-spacing:2px;color:var(--muted2);text-transform:uppercase;margin-bottom:10px}
+.office-detail{font-size:12px;color:rgba(200,220,255,.6);line-height:1.7}
+.section-head{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;letter-spacing:-.5px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.section-head::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+.social-row{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:20px}
+.social-btn{display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;border:1px solid var(--border);background:var(--glass);color:var(--muted);font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .2s;text-decoration:none}
+.social-btn:hover{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.06);color:#fff;transform:translateY(-2px)}
+ 
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+ 
+<div id="intro">
+  <div class="intro-orb"></div>
+  <div class="intro-tagline">Next-gen flight booking</div>
+  <div class="intro-logo">FUN<em>AIR</em></div>
+  <div class="intro-sub">Anywhere on Earth</div>
+  <div class="intro-enter" onclick="enterApp()">
+    <div class="intro-enter-line"></div>
+    <div class="intro-enter-text">Начать поиск</div>
+    <div class="intro-enter-line"></div>
+  </div>
+  <div class="intro-dots">
+    <div class="intro-dot"></div>
+    <div class="intro-dot"></div>
+    <div class="intro-dot"></div>
+  </div>
+</div>
+ 
+<div id="contactPage">
+  <div class="contact-bar">
+    <div class="contact-logo">FUN<em>AIR</em></div>
+    <div class="back-btn" onclick="closePage()">← Назад</div>
+  </div>
+  <div class="contact-inner">
+    <div class="contact-hero">
+      <div class="contact-pill">Support 24/7</div>
+      <div class="contact-h1">КОН<em>ТАК</em>ТЫ</div>
+      <div class="contact-tagline">Наша команда готова помочь круглосуточно — от выбора маршрута до изменения бронирования</div>
+    </div>
+    <div class="contact-cards">
+      <div class="cc"><div class="cc-icon">📞</div><div class="cc-label">Горячая линия</div><div class="cc-val">+7 (800) 555-47-27<br>Бесплатно по России</div><div class="cc-sub">Круглосуточно</div></div>
+      <div class="cc"><div class="cc-icon">✉️</div><div class="cc-label">Email</div><div class="cc-val">support@funair.aero<br>booking@funair.aero</div><div class="cc-sub">Ответ за 2 часа</div></div>
+      <div class="cc"><div class="cc-icon">💬</div><div class="cc-label">Мессенджеры</div><div class="cc-val">Telegram: @FunAirBot<br>WhatsApp: +7 900 477-2700</div><div class="cc-sub">Ср. время: 4 мин</div></div>
+    </div>
+    <div class="section-head">Офисы</div>
+    <div class="offices-grid">
+      <div class="office"><div class="office-city">Москва</div><div class="office-country">🇷🇺 Главный офис</div><div class="office-detail">ул. Тверская, 14, эт. 8<br>+7 (495) 774-47-27</div></div>
+ <div class="office"><div class="office-city">Ташкент</div><div class="office-country">🇸🇬 Asia Главный офис 2</div><div class="office-detail">Проспект Бунедкор 6А<br>+998 935122083</div></div>
+      <div class="office"><div class="office-city">Дубай</div><div class="office-country">🇦🇪 Middle East</div><div class="office-detail">DIFC Gate Avenue Tower A<br>+971 4 555 4727</div></div>
+<div class="office"><div class="office-city">Лондон</div><div class="office-country">🇬🇧 European HQ</div><div class="office-detail">22 Baker Street, Floor 4<br>+44 20 7946 0472</div></div>
+    </div>
+  
+    <div style="text-align:center">
+      <div class="section-head" style="justify-content:center;margin-bottom:0">Мы в соцсетях</div>
+      <div class="social-row">
+        <a class="social-btn" href="https://t.me/fun_air" target="_blank">✈ Telegram</a>
+        <a class="social-btn" href="https://www.instagram.com/fanair.uz?igsh=ZXY5eThudW1rcWg=" target="_blank">📸 Instagram</a>
+        <a class="social-btn" href="https://vk.com" target="_blank">🔵 VK</a>
+        <a class="social-btn" href="https://youtube.com" target="_blank">▶ YouTube</a>
+        <a class="social-btn" href="https://x.com" target="_blank">✕ Twitter</a>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<div id="modal">
+  <div class="modal-box">
+    <div class="modal-glow"></div>
+    <div id="modalForm">
+      <div class="modal-head">
+        <div class="modal-title">Бронирование</div>
+        <div class="modal-sub">Введите данные пассажира</div>
+        <div class="modal-close" id="modalClose">✕</div>
+      </div>
+      <div class="modal-body">
+        <div class="flight-sum">
+          <div><div class="fs-route" id="mRoute">— → —</div><div class="fs-detail" id="mDetail">Рейс не выбран</div></div>
+          <div class="fs-price" id="mPrice">—</div>
+        </div>
+        <div>
+          <div class="sec-title" style="margin-bottom:12px">Личные данные</div>
+          <div class="form-row">
+            <div class="form-field"><div class="form-lbl">Фамилия</div><input class="form-input" id="fLast" placeholder="Иванов" maxlength="40"/></div>
+            <div class="form-field"><div class="form-lbl">Имя</div><input class="form-input" id="fFirst" placeholder="Иван" maxlength="40"/></div>
+            <div class="form-field"><div class="form-lbl">Отчество</div><input class="form-input" id="fMid" placeholder="Иванович" maxlength="40"/></div>
+            <div class="form-field"><div class="form-lbl">Дата рождения</div><input class="form-input" id="fBirth" type="date"/></div>
+          </div>
+        </div>
+        <div>
+          <div class="sec-title" style="margin-bottom:12px">Паспорт</div>
+          <div class="form-row">
+            <div class="form-field"><div class="form-lbl">Серия</div><input class="form-input" id="fSer" placeholder="4520" maxlength="4"/></div>
+            <div class="form-field"><div class="form-lbl">Номер</div><input class="form-input" id="fNum" placeholder="123456" maxlength="6"/></div>
+            <div class="form-field full"><div class="form-lbl">Гражданство</div><input class="form-input" id="fNat" placeholder="Россия" maxlength="50"/></div>
+          </div>
+        </div>
+        <div>
+          <div class="sec-title" style="margin-bottom:12px">Оплата</div>
+          <div class="form-field" style="margin-bottom:12px"><div class="form-lbl">Номер карты</div><input class="form-input" id="fCard" placeholder="0000 0000 0000 0000" maxlength="19"/></div>
+          <div class="card-row">
+            <div class="form-field"><div class="form-lbl">Имя на карте</div><input class="form-input" id="fCName" placeholder="IVAN IVANOV" style="text-transform:uppercase" maxlength="26"/></div>
+            <div class="form-field"><div class="form-lbl">MM/ГГ</div><input class="form-input" id="fExp" placeholder="12/27" maxlength="5"/></div>
+            <div class="form-field"><div class="form-lbl">CVV</div><input class="form-input" id="fCVV" placeholder="•••" type="password" maxlength="3"/></div>
+          </div>
+        </div>
+        <div>
+          <div class="sec-title" style="margin-bottom:12px">Контакты</div>
+          <div class="form-row">
+            <div class="form-field"><div class="form-lbl">Email</div><input class="form-input" id="fEmail" type="email" placeholder="example@gmail.com"/></div>
+            <div class="form-field"><div class="form-lbl">Телефон</div><input class="form-input" id="fPhone" placeholder="+998 00 000 00 00" maxlength="18"/></div>
+          </div>
+        </div>
+        <label class="agree-row"><input type="checkbox" id="fAgree"/>Я принимаю условия перевозки и политику конфиденциальности Fun Air</label>
+        <button class="submit-btn" id="submitBtn">✈ Подтвердить бронирование</button>
+        <div class="form-err" id="formErr"></div>
+      </div>
+    </div>
+    <div class="result result-ok" id="resOk">
+      <div class="result-icon">✅</div>
+      <div class="result-title">Забронировано!</div>
+      <div class="result-msg" id="resOkMsg">Ваш рейс подтверждён.</div>
+      <button class="result-btn" id="resOkClose">Закрыть</button>
+    </div>
+    <div class="result result-fail" id="resFail">
+      <div class="result-icon">❌</div>
+      <div class="result-title">Ошибка оплаты</div>
+      <div class="result-msg">Проверьте данные карты и попробуйте снова.</div>
+      <button class="result-btn" id="resFailRetry">Попробовать снова</button>
+    </div>
+  </div>
+</div>
+ 
+<div id="app">
+  <div class="topbar">
+    <div class="logo"><div class="logo-icon">✈</div> FUN<em>AIR</em></div>
+    <div class="top-nav">
+      <button class="nav-btn active" id="navMain" onclick="showMain()">🗺 Маршруты</button>
+      <button class="nav-btn" id="navContact" onclick="showContact()">📞 Контакты</button>
+    </div>
+    <div class="top-right">
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+      <div class="time-display" id="clockEl">—</div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="globe-area">
+      <canvas id="globeCanvas"></canvas>
+      <div class="globe-interact">
+        <div class="gi-title">Управление</div>
+        <div class="gi-hint">🖱 Тяни для вращения<br>🔍 Колёсико — зум<br>✈ Выбери маршрут справа</div>
+      </div>
+      <div class="globe-overlay">
+        <div class="globe-pill" id="pillRoute"><div class="globe-pill-dot"></div><span id="pillRouteText">Выберите маршрут</span></div>
+        <div class="globe-pill" id="pillTime"><div class="globe-pill-dot"></div><span id="pillTimeText">Время в пути: —</span></div>
+        <div class="globe-pill" id="pillDist"><div class="globe-pill-dot"></div><span id="pillDistText">Расстояние: —</span></div>
+      </div>
+    </div>
+ 
+    <div class="sidebar">
+      <div class="sb-scroll" id="sbScroll">
+        <div class="sb-head">
+          <div class="sb-title">Flight Search</div>
+          <div class="sb-badge">REAL TIME</div>
+        </div>
+ 
+        <div class="route-card" id="routeCard">
+          <div class="rc-inner">
+            <div class="rc-city">
+              <div class="rc-flag" id="rcFromFlag">🌐</div>
+              <div class="rc-name" id="rcFromName">Откуда</div>
+              <div class="rc-code" id="rcFromCode">---</div>
+            </div>
+            <div class="rc-middle">
+              <div class="rc-dots"><div class="rc-dot"></div><div class="rc-dot"></div><div class="rc-dot"></div></div>
+              <div class="rc-plane">✈</div>
+              <div class="rc-duration" id="rcDur">—</div>
+              <div class="rc-dots"><div class="rc-dot"></div><div class="rc-dot"></div><div class="rc-dot"></div></div>
+            </div>
+            <div class="rc-city" style="text-align:right">
+              <div class="rc-flag" id="rcToFlag">🌐</div>
+              <div class="rc-name" id="rcToName">Куда</div>
+              <div class="rc-code" id="rcToCode">---</div>
+            </div>
+          </div>
+        </div>
+ 
+        <div class="field">
+          <div class="field-label"><div class="field-label-dot from"></div>Откуда</div>
+          <div class="sel-wrap">
+            <select id="selFrom">
+              <option value="">— Выберите город вылета —</option>
+              <option value="usa|195,205|🇺🇸|Нью-Йорк|JFK|40.7,-74.0">🇺🇸 Нью-Йорк, США (JFK)</option>
+              <option value="uk|508,115|🇬🇧|Лондон|LHR|51.5,-0.1">🇬🇧 Лондон, UK (LHR)</option>
+              <option value="russia|698,95|🇷🇺|Москва|SVO|55.75,37.6">🇷🇺 Москва, Россия (SVO)</option>
+              <option value="uae|762,275|🇦🇪|Дубай|DXB|25.2,55.3">🇦🇪 Дубай, ОАЭ (DXB)</option>
+              <option value="france|515,148|🇫🇷|Париж|CDG|48.8,2.35">🇫🇷 Париж, Франция (CDG)</option>
+              <option value="germany|562,125|🇩🇪|Берлин|BER|52.5,13.4">🇩🇪 Берлин, Германия (BER)</option>
+              <option value="brazil|268,448|🇧🇷|Рио-де-Жанейро|GIG|-22.9,-43.2">🇧🇷 Рио-де-Жанейро</option>
+              <option value="india|895,265|🇮🇳|Мумбаи|BOM|19.1,72.9">🇮🇳 Мумбаи, Индия (BOM)</option>
+              <option value="china|998,195|🇨🇳|Пекин|PEK|39.9,116.4">🇨🇳 Пекин, Китай (PEK)</option>
+              <option value="australia|1082,495|🇦🇺|Сидней|SYD|-33.9,151.2">🇦🇺 Сидней, Австралия (SYD)</option>
+            </select>
+            <svg class="sel-arr" width="12" height="12" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          </div>
+        </div>
+ 
+        <div class="field">
+          <div class="field-label"><div class="field-label-dot to"></div>Куда</div>
+          <div class="sel-wrap">
+            <select id="selTo">
+              <option value="">— Выберите город прилёта —</option>
+              <option value="japan|1112,148|🇯🇵|Токио|NRT|35.7,139.7">🇯🇵 Токио, Япония (NRT)</option>
+              <option value="australia|1082,495|🇦🇺|Сидней|SYD|-33.9,151.2">🇦🇺 Сидней, Австралия (SYD)</option>
+              <option value="china|998,195|🇨🇳|Пекин|PEK|39.9,116.4">🇨🇳 Пекин, Китай (PEK)</option>
+              <option value="egypt|622,238|🇪🇬|Каир|CAI|30.05,31.25">🇪🇬 Каир, Египет (CAI)</option>
+              <option value="usa|195,205|🇺🇸|Нью-Йорк|JFK|40.7,-74.0">🇺🇸 Нью-Йорк, США (JFK)</option>
+              <option value="uae|762,275|🇦🇪|Дубай|DXB|25.2,55.3">🇦🇪 Дубай, ОАЭ (DXB)</option>
+              <option value="uk|508,115|🇬🇧|Лондон|LHR|51.5,-0.1">🇬🇧 Лондон, UK (LHR)</option>
+              <option value="india|895,265|🇮🇳|Мумбаи|BOM|19.1,72.9">🇮🇳 Мумбаи, Индия (BOM)</option>
+              <option value="thailand|1005,278|🇹🇭|Бангкок|BKK|13.75,100.5">🇹🇭 Бангкок, Таиланд (BKK)</option>
+              <option value="brazil|268,448|🇧🇷|Рио-де-Жанейро|GIG|-22.9,-43.2">🇧🇷 Рио-де-Жанейро</option>
+            </select>
+            <svg class="sel-arr" width="12" height="12" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          </div>
+        </div>
+ 
+        <div class="divider"></div>
+ 
+        <div class="ticket" id="ticket">
+          <div class="t-head">
+            <div class="t-head-left">
+              <div class="t-flight-num" id="tFlight">FA-????</div>
+              <div class="t-airline">Fun Air International</div>
+            </div>
+            <div class="t-status">OPEN</div>
+          </div>
+          <div class="t-rows">
+            <div class="t-row"><div class="t-lbl">Время в пути</div><div class="t-val flight-time" id="tTime">—</div></div>
+            <div class="t-row"><div class="t-lbl">Расстояние</div><div class="t-val" id="tDist">—</div></div>
+            <div class="t-row"><div class="t-lbl">Класс</div><div class="t-val" id="tClass">—</div></div>
+            <div class="t-row"><div class="t-lbl">Питание</div><div class="t-val" id="tMeal">—</div></div>
+            <div class="t-row"><div class="t-lbl">Цена</div><div class="t-val price" id="tPrice">—</div></div>
+          </div>
+        </div>
+ 
+        <div id="dynamicArea"></div>
+ 
+      </div>
+      <div class="book-wrap">
+        <button class="book-btn" id="bookBtn">✈ Забронировать рейс</button>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<script>
+// ===== CLOCK =====
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clockEl').textContent=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(updateClock,1000);updateClock();
+ 
+// ===== PARTICLES =====
+const pCv=document.getElementById('particles'),pCx=pCv.getContext('2d');
+let pts=[];
+function resizeP(){pCv.width=innerWidth;pCv.height=innerHeight}
+function initP(){pts=[];const n=60;for(let i=0;i<n;i++)pts.push({x:Math.random()*pCv.width,y:Math.random()*pCv.height,r:Math.random()*1.2+.2,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,a:Math.random()*.4+.05})}
+function animP(t){
+  pCx.clearRect(0,0,pCv.width,pCv.height);
+  pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=pCv.width;if(p.x>pCv.width)p.x=0;if(p.y<0)p.y=pCv.height;if(p.y>pCv.height)p.y=0;pCx.beginPath();pCx.arc(p.x,p.y,p.r,0,Math.PI*2);pCx.fillStyle=`rgba(0,212,255,${p.a})`;pCx.fill();});
+  for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<120){pCx.beginPath();pCx.moveTo(pts[i].x,pts[i].y);pCx.lineTo(pts[j].x,pts[j].y);pCx.strokeStyle=`rgba(0,212,255,${.08*(1-d/120)})`;pCx.lineWidth=.5;pCx.stroke();}}}
+  requestAnimationFrame(animP);
+}
+resizeP();initP();window.addEventListener('resize',()=>{resizeP();initP();});requestAnimationFrame(animP);
+ 
+// ===== INTRO =====
+function enterApp(){
+  document.getElementById('intro').classList.add('out');
+  setTimeout(()=>{
+    document.getElementById('intro').style.display='none';
+    document.getElementById('app').classList.add('show');
+  },1200);
+}
+setTimeout(()=>enterApp(),3200);
+ 
+// ===== NAVIGATION =====
+function showMain(){document.getElementById('contactPage').classList.remove('show');document.getElementById('navMain').classList.add('active');document.getElementById('navContact').classList.remove('active');}
+function showContact(){document.getElementById('contactPage').classList.add('show');document.getElementById('navContact').classList.add('active');document.getElementById('navMain').classList.remove('active');}
+function closePage(){showMain();}
+ 
+// ===== GLOBE =====
+const GC=document.getElementById('globeCanvas');
+const CTX=GC.getContext('2d');
+let W=0,H=0,R=0;
+ 
+function sizeGlobe(){
+  const area=GC.parentElement;
+  W=area.clientWidth;H=area.clientHeight;
+  R=Math.min(W,H)*.38;
+  GC.width=W*2;GC.height=H*2;GC.style.width=W+'px';GC.style.height=H+'px';
+  CTX.scale(2,2);
+  GC.style.borderRadius='0';
+}
+sizeGlobe();
+ 
+// Globe state
+// rotY: positive = globe rotates so eastern longitudes face front (right-hand convention)
+// rotX: positive = globe tilts so northern latitudes face front
+let rotX=20,rotY=0,zoom=1;
+let dragging=false,lastMX=0,lastMY=0,velX=0,velY=0;
+let fromCoord=null,toCoord=null;
+let animT=0;
+let routeArcPts=[];
+ 
+function latLonTo3D(lat,lon,r){
+  const la=lat*Math.PI/180,lo=lon*Math.PI/180;
+  return[r*Math.cos(la)*Math.sin(lo),r*Math.sin(la),r*Math.cos(la)*Math.cos(lo)];
+}
+function rotate3D(x,y,z){
+  const ry=rotY*Math.PI/180,rx=rotX*Math.PI/180;
+  // Rotate around Y axis
+  const x1=x*Math.cos(ry)-z*Math.sin(ry);
+  const z1=x*Math.sin(ry)+z*Math.cos(ry);
+  // Rotate around X axis
+  const y2=y*Math.cos(rx)-z1*Math.sin(rx);
+  const z2=y*Math.sin(rx)+z1*Math.cos(rx);
+  return[x1,y2,z2];
+}
+function project(x,y,z){
+  const s=zoom;
+  return[W/2+x*s,H/2-y*s];
+}
+ 
+const continents=[
+  {id:'na',name:'North America',color:'#1e3a28',stroke:'#2e5a3a',pts:[[70,-140],[72,-95],[60,-65],[50,-55],[45,-66],[24,-81],[15,-85],[15,-92],[8,-77],[9,-79],[10,-83],[30,-110],[32,-117],[38,-122],[48,-124],[60,-140],[70,-140]]},
+  {id:'sa',name:'South America',color:'#2a3510',stroke:'#3d5218',pts:[[10,-62],[8,-60],[5,-52],[0,-50],[-5,-35],[-10,-37],[-15,-39],[-22,-43],[-33,-71],[-40,-62],[-55,-65],[-55,-70],[-35,-73],[-20,-70],[-5,-81],[5,-77],[10,-62]]},
+  {id:'eu',name:'Europe',color:'#1a2e50',stroke:'#2a4a7a',pts:[[70,28],[65,15],[60,5],[55,-6],[48,-5],[44,-9],[36,-6],[36,10],[38,26],[40,26],[42,18],[45,12],[45,28],[50,30],[54,18],[57,10],[60,18],[65,26],[70,28]]},
+  {id:'af',name:'Africa',color:'#2a2010',stroke:'#5a4020',pts:[[37,10],[37,36],[30,32],[22,37],[12,43],[0,42],[-5,40],[-10,38],[-26,33],[-34,18],[-34,26],[-20,35],[-5,40],[5,10],[15,-17],[22,-17],[30,-10],[37,10]]},
+  {id:'ru',name:'Russia',color:'#2e1a1a',stroke:'#5a2a2a',pts:[[68,32],[70,60],[72,100],[68,140],[60,140],[56,135],[50,130],[50,80],[55,60],[60,50],[65,32],[68,32]]},
+  {id:'me',name:'Middle East',color:'#3a2a10',stroke:'#6a4a18',pts:[[37,36],[37,50],[25,56],[15,50],[12,44],[20,38],[30,32],[37,36]]},
+  {id:'as',name:'Central/South Asia',color:'#1a2e2e',stroke:'#2a5050',pts:[[50,80],[45,60],[37,50],[25,55],[10,78],[8,77],[20,72],[28,70],[35,72],[42,75],[48,85],[52,80]]},
+  {id:'ea',name:'East Asia',color:'#1a1a3a',stroke:'#2a2a6a',pts:[[52,80],[55,130],[50,140],[42,130],[22,114],[10,104],[20,100],[28,100],[35,90],[42,85],[48,85],[52,80]]},
+  {id:'oc',name:'Oceania',color:'#0e2230',stroke:'#1a3a50',pts:[[-15,130],[-20,120],[-34,115],[-38,146],[-30,153],[-16,136],[-12,130],[-15,130]]},
+  {id:'na2',name:'North America West',color:'#1e3a28',stroke:'#2e5a3a',pts:[[70,-140],[60,-140],[48,-124],[38,-122],[32,-117],[28,-110],[22,-100],[10,-83],[10,-75],[25,-80],[30,-80],[30,-90],[25,-90],[20,-87],[15,-85],[15,-92],[20,-100],[30,-110],[38,-105],[45,-95],[50,-75],[55,-60],[60,-65],[72,-95],[70,-140]]},
+];
+ 
+function greatCircleArc(lat1,lon1,lat2,lon2,n){
+  const pts=[];
+  const la1=lat1*Math.PI/180,lo1=lon1*Math.PI/180;
+  const la2=lat2*Math.PI/180,lo2=lon2*Math.PI/180;
+  const x1=Math.cos(la1)*Math.cos(lo1),y1=Math.cos(la1)*Math.sin(lo1),z1=Math.sin(la1);
+  const x2=Math.cos(la2)*Math.cos(lo2),y2=Math.cos(la2)*Math.sin(lo2),z2=Math.sin(la2);
+  const d=Math.acos(Math.max(-1,Math.min(1,x1*x2+y1*y2+z1*z2)));
+  if(d<0.001)return[[lat1,lon1],[lat2,lon2]];
+  for(let i=0;i<=n;i++){
+    const t=i/n;
+    const A=Math.sin((1-t)*d)/Math.sin(d),B=Math.sin(t*d)/Math.sin(d);
+    const xi=A*x1+B*x2,yi=A*y1+B*y2,zi=A*z1+B*z2;
+    const lat=Math.atan2(zi,Math.sqrt(xi*xi+yi*yi))*180/Math.PI;
+    const lon=Math.atan2(yi,xi)*180/Math.PI;
+    pts.push([lat,lon]);
+  }
+  return pts;
+}
+ 
+function drawGlobe(){
+  CTX.clearRect(0,0,W*2,H*2);
+  const r=R*zoom;
+ 
+  const grd=CTX.createRadialGradient(W/2-r*.25,H/2-r*.3,r*.05,W/2,H/2,r*1.1);
+  grd.addColorStop(0,'rgba(0,212,255,0.03)');
+  grd.addColorStop(.5,'rgba(0,0,0,0)');
+  grd.addColorStop(1,'rgba(0,20,60,0.05)');
+  CTX.beginPath();CTX.arc(W/2,H/2,r*1.08,0,Math.PI*2);
+  CTX.fillStyle=grd;CTX.fill();
+ 
+  const oceanGrd=CTX.createRadialGradient(W/2-r*.2,H/2-r*.25,r*.1,W/2,H/2,r);
+  oceanGrd.addColorStop(0,'#1565c0');
+  oceanGrd.addColorStop(.45,'#0d47a1');
+  oceanGrd.addColorStop(.75,'#0a2f7a');
+  oceanGrd.addColorStop(1,'#041a55');
+  CTX.save();
+  CTX.beginPath();CTX.arc(W/2,H/2,r,0,Math.PI*2);
+  CTX.fillStyle=oceanGrd;CTX.fill();
+  CTX.clip();
+ 
+  CTX.save();
+  CTX.strokeStyle='rgba(100,160,255,0.06)';
+  CTX.lineWidth=.6;
+  for(let lat=-60;lat<=60;lat+=30){
+    const pts2=[];
+    for(let lon=-180;lon<=180;lon+=5){
+      const[x,y,z]=rotate3D(...latLonTo3D(lat,lon,r));
+      if(z>=0){const[px,py]=project(x,y,z);pts2.push([px,py,true]);}else pts2.push([0,0,false]);
+    }
+    CTX.beginPath();let started=false;
+    pts2.forEach(([px,py,vis])=>{if(vis){if(!started){CTX.moveTo(px,py);started=true;}else CTX.lineTo(px,py);}else started=false;});
+    CTX.stroke();
+  }
+  for(let lon=-180;lon<=180;lon+=30){
+    const pts2=[];
+    for(let lat=-85;lat<=85;lat+=5){
+      const[x,y,z]=rotate3D(...latLonTo3D(lat,lon,r));
+      if(z>=0){const[px,py]=project(x,y,z);pts2.push([px,py,true]);}else pts2.push([0,0,false]);
+    }
+    CTX.beginPath();let started=false;
+    pts2.forEach(([px,py,vis])=>{if(vis){if(!started){CTX.moveTo(px,py);started=true;}else CTX.lineTo(px,py);}else started=false;});
+    CTX.stroke();
+  }
+  CTX.restore();
+ 
+  continents.forEach(cont=>{
+    CTX.save();
+    CTX.beginPath();
+    let started=false,prevVis=false;
+    cont.pts.forEach(([la,lo])=>{
+      const[x,y,z]=rotate3D(...latLonTo3D(la,lo,r));
+      const vis=z>=-r*.05;
+      const[px,py]=project(x,y,z);
+      if(vis){if(!started||!prevVis){CTX.moveTo(px,py);started=true;}else CTX.lineTo(px,py);}
+      prevVis=vis;
+    });
+    if(started){
+      CTX.closePath();
+      CTX.fillStyle=cont.color;
+      CTX.strokeStyle=cont.stroke;
+      CTX.lineWidth=.8;
+      CTX.fill();CTX.stroke();
+    }
+    CTX.restore();
+  });
+ 
+  const cities2=[
+    {lat:40.7,lon:-74,name:'NYC',col:'#00e676'},{lat:51.5,lon:-.1,name:'LHR',col:'#4fc3f7'},
+    {lat:55.75,lon:37.6,name:'SVO',col:'#4fc3f7'},{lat:25.2,lon:55.3,name:'DXB',col:'#4fc3f7'},
+    {lat:48.8,lon:2.35,name:'CDG',col:'#4fc3f7'},{lat:52.5,lon:13.4,name:'BER',col:'#4fc3f7'},
+    {lat:-22.9,lon:-43.2,name:'RIO',col:'#4fc3f7'},{lat:19.1,lon:72.9,name:'BOM',col:'#4fc3f7'},
+    {lat:39.9,lon:116.4,name:'PEK',col:'#4fc3f7'},{lat:-33.9,lon:151.2,name:'SYD',col:'#4fc3f7'},
+    {lat:35.7,lon:139.7,name:'NRT',col:'#4fc3f7'},{lat:30.05,lon:31.25,name:'CAI',col:'#4fc3f7'},
+    {lat:13.75,lon:100.5,name:'BKK',col:'#4fc3f7'},
+  ];
+  cities2.forEach(c=>{
+    const[x,y,z]=rotate3D(...latLonTo3D(c.lat,c.lon,r));
+    if(z>=0){
+      const[px,py]=project(x,y,z);
+      CTX.beginPath();CTX.arc(px,py,3,0,Math.PI*2);
+      CTX.fillStyle=c.col;CTX.globalAlpha=.5;CTX.fill();
+      CTX.globalAlpha=.25;CTX.beginPath();CTX.arc(px,py,6,0,Math.PI*2);CTX.fill();
+      CTX.globalAlpha=1;
+    }
+  });
+ 
+  if(fromCoord){
+    const[x,y,z]=rotate3D(...latLonTo3D(fromCoord[0],fromCoord[1],r));
+    if(z>=0){
+      const[px,py]=project(x,y,z);
+      CTX.save();
+      CTX.beginPath();CTX.arc(px,py,8,0,Math.PI*2);
+      CTX.fillStyle='rgba(0,230,118,.15)';CTX.fill();
+      CTX.beginPath();CTX.arc(px,py,4,0,Math.PI*2);
+      CTX.fillStyle='#00e676';CTX.fill();
+      CTX.strokeStyle='#fff';CTX.lineWidth=1.5;CTX.stroke();
+      CTX.restore();
+    }
+  }
+  if(toCoord){
+    const[x,y,z]=rotate3D(...latLonTo3D(toCoord[0],toCoord[1],r));
+    if(z>=0){
+      const[px,py]=project(x,y,z);
+      CTX.save();
+      CTX.beginPath();CTX.arc(px,py,8,0,Math.PI*2);
+      CTX.fillStyle='rgba(255,107,53,.15)';CTX.fill();
+      CTX.beginPath();CTX.arc(px,py,4,0,Math.PI*2);
+      CTX.fillStyle='#ff6b35';CTX.fill();
+      CTX.strokeStyle='#fff';CTX.lineWidth=1.5;CTX.stroke();
+      CTX.restore();
+    }
+  }
+ 
+  if(routeArcPts.length>1){
+    CTX.save();
+    const arcPx=[];
+    routeArcPts.forEach(([la,lo])=>{
+      const[x,y,z]=rotate3D(...latLonTo3D(la,lo,r));
+      if(z>=0)arcPx.push([...project(x,y,z),true]);
+      else arcPx.push([0,0,false]);
+    });
+    CTX.setLineDash([8,5]);
+    CTX.strokeStyle='rgba(0,212,255,.5)';
+    CTX.lineWidth=2;
+    CTX.lineJoin='round';
+    CTX.lineCap='round';
+    CTX.shadowColor='rgba(0,212,255,.3)';
+    CTX.shadowBlur=8;
+    CTX.beginPath();let seg=false;
+    arcPx.forEach(([px,py,vis])=>{if(vis){if(!seg){CTX.moveTo(px,py);seg=true;}else CTX.lineTo(px,py);}else seg=false;});
+    CTX.stroke();
+    CTX.setLineDash([]);
+    CTX.shadowBlur=0;
+    CTX.restore();
+ 
+    const idx=Math.floor(animT*routeArcPts.length)%routeArcPts.length;
+    const nIdx=Math.min(idx+1,routeArcPts.length-1);
+    const[la1,lo1]=routeArcPts[idx];
+    const[la2,lo2]=routeArcPts[nIdx];
+    const[x1,y1,z1]=rotate3D(...latLonTo3D(la1,lo1,r));
+    const[x2,y2,z2]=rotate3D(...latLonTo3D(la2,lo2,r));
+    if(z1>=0){
+      const[px1,py1]=project(x1,y1,z1);
+      const[px2,py2]=project(x2,y2,z2);
+      const ang=Math.atan2(py2-py1,px2-px1)*180/Math.PI;
+      CTX.save();
+      CTX.translate(px1,py1);
+      CTX.rotate(ang*Math.PI/180);
+      const hGrd=CTX.createRadialGradient(0,0,0,0,0,14);
+      hGrd.addColorStop(0,'rgba(0,212,255,.3)');hGrd.addColorStop(1,'rgba(0,212,255,0)');
+      CTX.fillStyle=hGrd;CTX.beginPath();CTX.arc(0,0,14,0,Math.PI*2);CTX.fill();
+      CTX.font='16px sans-serif';
+      CTX.fillStyle='#fff';
+      CTX.textAlign='center';CTX.textBaseline='middle';
+      CTX.fillText('✈',0,0);
+      CTX.restore();
+    }
+  }
+ 
+  CTX.restore();
+  const atmGrd=CTX.createRadialGradient(W/2,H/2,r*.9,W/2,H/2,r*1.08);
+  atmGrd.addColorStop(0,'rgba(0,100,255,0)');
+  atmGrd.addColorStop(.6,'rgba(0,150,255,.04)');
+  atmGrd.addColorStop(.85,'rgba(0,212,255,.08)');
+  atmGrd.addColorStop(1,'rgba(100,220,255,.04)');
+  CTX.beginPath();CTX.arc(W/2,H/2,r*1.08,0,Math.PI*2);CTX.fillStyle=atmGrd;CTX.fill();
+ 
+  const sheen=CTX.createRadialGradient(W/2-r*.3,H/2-r*.35,0,W/2,H/2,r);
+  sheen.addColorStop(0,'rgba(200,230,255,0.12)');
+  sheen.addColorStop(.4,'rgba(80,160,240,0.03)');
+  sheen.addColorStop(1,'rgba(0,0,0,0)');
+  CTX.save();CTX.beginPath();CTX.arc(W/2,H/2,r,0,Math.PI*2);CTX.clip();
+  CTX.fillStyle=sheen;CTX.fillRect(W/2-r,H/2-r,r*2,r*2);
+  CTX.restore();
+ 
+  const shadow=CTX.createRadialGradient(W/2+r*.4,H/2+r*.3,r*.2,W/2+r*.2,H/2,r*1.1);
+  shadow.addColorStop(0,'rgba(0,0,0,0)');
+  shadow.addColorStop(.5,'rgba(0,0,10,0.12)');
+  shadow.addColorStop(1,'rgba(0,0,5,0.65)');
+  CTX.save();CTX.beginPath();CTX.arc(W/2,H/2,r,0,Math.PI*2);CTX.clip();
+  CTX.fillStyle=shadow;CTX.fillRect(W/2-r,H/2-r,r*2,r*2);
+  CTX.restore();
+ 
+  CTX.beginPath();CTX.arc(W/2,H/2,r+2,0,Math.PI*2);
+  CTX.strokeStyle='rgba(0,212,255,0.1)';CTX.lineWidth=1;CTX.stroke();
+}
+ 
+function globeLoop(){
+  if(!dragging){
+    // Apply inertia — same sign convention as drag
+    velX*=.96;velY*=.96;
+    rotY+=velX;
+    rotX+=velY;
+    rotX=Math.max(-80,Math.min(80,rotX));
+  }
+  if(routeArcPts.length){animT=(animT+.004)%1;}
+  drawGlobe();
+  requestAnimationFrame(globeLoop);
+}
+globeLoop();
+ 
+// ===== INTUITIVE DRAG CONTROLS =====
+// Convention: drag right → globe surface under cursor moves right → western longitudes come into view
+// This means rotY INCREASES when dragging right (positive dx)
+// In rotate3D: when rotY increases, x1 = x*cos(ry) - z*sin(ry)
+// A point at lon=90 has x=r,z=0: x1=r*cos(ry), it moves LEFT as ry increases → NOT intuitive
+// Wait — let's think visually: at rotY=0, we see lon=0 (Greenwich) at center.
+// If we drag right, we want to see lon=-90 (Americas) come into view from the left.
+// lon=-90: x=-r*sin(-90°*π/180)... actually let's just test with negation.
+// After testing: dragging right should DECREASE rotY to show western longitudes.
+// The globe rotates so the surface follows the finger = drag right → surface moves right → rotY decreases.
+ 
+GC.addEventListener('mousedown',e=>{dragging=true;lastMX=e.clientX;lastMY=e.clientY;velX=0;velY=0;});
+window.addEventListener('mousemove',e=>{
+  if(!dragging)return;
+  const dx=e.clientX-lastMX,dy=e.clientY-lastMY;
+  // FIXED: intuitive — surface follows cursor
+  // drag right (dx>0) → globe surface moves right → rotY decreases
+  velX=-dx*.3;
+  velY=-dy*.3;
+  rotY+=velX;
+  rotX+=velY;
+  rotX=Math.max(-80,Math.min(80,rotX));
+  lastMX=e.clientX;lastMY=e.clientY;
+});
+window.addEventListener('mouseup',()=>dragging=false);
+GC.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.5,Math.min(2.2,zoom-e.deltaY*.001));},{passive:false});
+ 
+GC.addEventListener('touchstart',e=>{if(e.touches.length===1){dragging=true;lastMX=e.touches[0].clientX;lastMY=e.touches[0].clientY;velX=0;velY=0;}},{passive:true});
+GC.addEventListener('touchmove',e=>{
+  if(!dragging||e.touches.length!==1)return;
+  const dx=e.touches[0].clientX-lastMX,dy=e.touches[0].clientY-lastMY;
+  // FIXED: intuitive — surface follows finger
+  velX=-dx*.3;
+  velY=-dy*.3;
+  rotY+=velX;
+  rotX+=velY;
+  rotX=Math.max(-80,Math.min(80,rotX));
+  lastMX=e.touches[0].clientX;lastMY=e.touches[0].clientY;
+},{passive:true});
+window.addEventListener('touchend',()=>dragging=false);
+ 
+window.addEventListener('resize',()=>{sizeGlobe();});
+ 
+// ===== ROUTE LOGIC =====
+let curFrom=null,curTo=null;
+ 
+function parseCity(v){
+  const p=v.split('|');
+  const ll=p[5].split(',');
+  return{country:p[0],flag:p[2],city:p[3],code:p[4],lat:+ll[0],lon:+ll[1]};
+}
+ 
+function calcDistance(lat1,lon1,lat2,lon2){
+  const R=6371;
+  const dLat=(lat2-lat1)*Math.PI/180;
+  const dLon=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+ 
+function formatTime(km){
+  const speed=870;
+  const hrs=km/speed;
+  const h=Math.floor(hrs);
+  const m=Math.floor((hrs-h)*60);
+  return`${h}ч ${m}м`;
+}
+ 
+// ===== FIXED spinToRoute =====
+// Goal: rotate globe so BOTH departure and arrival cities are visible (front hemisphere)
+// Strategy: aim at the geographic midpoint of the route
+// In our coordinate system:
+//   rotY = lon of the point that appears at the horizontal center of the globe
+//   When rotY = lon, that longitude faces the viewer
+//   (because latLonTo3D uses sin(lon) for x, cos(lon) for z,
+//    and rotate3D with ry=rotY brings z-axis toward viewer,
+//    so the point with lon=rotY ends up at z>0 facing us)
+// rotX = -lat brings that latitude to vertical center (negative because Y is flipped in projection)
+ 
+function spinToRoute(){
+  if(!curFrom||!curTo)return;
+ 
+  // Compute geographic midpoint
+  const midLat=(curFrom.lat+curTo.lat)/2;
+ 
+  // Handle longitude wrap-around for midpoint (e.g. Tokyo lon=140, NYC lon=-74)
+  let lonA=curFrom.lon,lonB=curTo.lon;
+  let diff=lonB-lonA;
+  if(diff>180)diff-=360;
+  if(diff<-180)diff+=360;
+  const midLon=lonA+diff/2;
+ 
+  // Target: midLon faces viewer → rotY = midLon
+  // Target: midLat centered → rotX = -midLat * 0.5 (scale factor keeps tilt gentle)
+  let targetY=midLon;
+  let targetX=-midLat*0.5;
+  targetX=Math.max(-75,Math.min(75,targetX));
+ 
+  // Find shortest angular path from current rotY to targetY
+  let angDiff=targetY-rotY;
+  angDiff=((angDiff%360)+540)%360-180;
+  const finalTarget=rotY+angDiff;
+ 
+  let steps=0;
+  const iv=setInterval(()=>{
+    const dy=(finalTarget-rotY)*.09,dx=(targetX-rotX)*.09;
+    rotY+=dy;rotX+=dx;
+    steps++;
+    if(steps>100)clearInterval(iv);
+  },16);
+}
+ 
+const classes=['Эконом','Бизнес','Первый класс'];
+const meals={'Эконом':'Снек + напиток','Бизнес':'Горячее блюдо','Первый класс':'Гурмэ-меню'};
+ 
+function updateRoute(){
+  if(!curFrom||!curTo)return;
+  const dist=calcDistance(curFrom.lat,curFrom.lon,curTo.lat,curTo.lon);
+  const timeStr=formatTime(dist);
+  const cl=classes[Math.floor(Math.random()*3)];
+  const price=Math.floor(dist*.25+Math.random()*300+150);
+  const fnum='FA-'+Math.floor(Math.random()*8000+1000);
+ 
+  document.getElementById('routeCard').classList.add('active');
+  document.getElementById('rcFromFlag').textContent=curFrom.flag;
+  document.getElementById('rcFromName').textContent=curFrom.city;
+  document.getElementById('rcFromCode').textContent=curFrom.code;
+  document.getElementById('rcToFlag').textContent=curTo.flag;
+  document.getElementById('rcToName').textContent=curTo.city;
+  document.getElementById('rcToCode').textContent=curTo.code;
+  document.getElementById('rcDur').textContent=timeStr;
+ 
+  document.getElementById('ticket').classList.add('has-data');
+  document.getElementById('tFlight').textContent=fnum;
+  document.getElementById('tTime').textContent=timeStr;
+  document.getElementById('tDist').textContent=Math.round(dist).toLocaleString()+' км';
+  document.getElementById('tClass').textContent=cl;
+  document.getElementById('tMeal').textContent=meals[cl];
+  document.getElementById('tPrice').textContent='$'+price;
+ 
+  document.getElementById('pillRoute').classList.add('active');
+  document.getElementById('pillRouteText').textContent=`${curFrom.city} → ${curTo.city}`;
+  document.getElementById('pillTime').classList.add('active');
+  document.getElementById('pillTimeText').textContent=`В пути: ${timeStr}`;
+  document.getElementById('pillDist').classList.add('active');
+  document.getElementById('pillDistText').textContent=`${Math.round(dist).toLocaleString()} км`;
+ 
+  routeArcPts=greatCircleArc(curFrom.lat,curFrom.lon,curTo.lat,curTo.lon,120);
+  fromCoord=[curFrom.lat,curFrom.lon];
+  toCoord=[curTo.lat,curTo.lon];
+  animT=0;
+  GC.classList.add('has-route');
+ 
+  spinToRoute();
+  renderDynamic(cl,price,fnum,timeStr,dist);
+}
+ 
+document.getElementById('selFrom').addEventListener('change',function(){
+  curFrom=this.value?parseCity(this.value):null;
+  if(!this.value){fromCoord=null;routeArcPts=[];GC.classList.remove('has-route');clearUI();}
+  if(curFrom&&curTo)updateRoute();
+});
+document.getElementById('selTo').addEventListener('change',function(){
+  curTo=this.value?parseCity(this.value):null;
+  if(!this.value){toCoord=null;routeArcPts=[];GC.classList.remove('has-route');clearUI();}
+  if(curFrom&&curTo)updateRoute();
+});
+ 
+function clearUI(){
+  document.getElementById('rcDur').textContent='—';
+  document.getElementById('pillRoute').classList.remove('active');
+  document.getElementById('pillTime').classList.remove('active');
+  document.getElementById('pillDist').classList.remove('active');
+  document.getElementById('pillRouteText').textContent='Выберите маршрут';
+  document.getElementById('pillTimeText').textContent='Время в пути: —';
+  document.getElementById('pillDistText').textContent='Расстояние: —';
+  document.getElementById('dynamicArea').innerHTML='';
+}
+ 
+// ===== SEATS =====
+let chosenSeat=null;
+function genSeatData(){const rows=[];const L=['A','B','C','D','E','F'];for(let i=1;i<=10;i++){const row=[];for(let j=0;j<6;j++)row.push({id:`${i}${L[j]}`,taken:Math.random()<.4});rows.push(row);}return rows;}
+function renderSeats(){
+  const data=genSeatData();chosenSeat=null;
+  let h=`<div class="seats-box"><div class="seats-head"><div class="seats-head-left"><div class="seats-title">Выбор места</div></div><div class="seats-count">Boeing 737 • 60 мест</div></div><div class="seat-legend"><div class="sl-item"><div class="sl-sq a"></div>Свободно</div><div class="sl-item"><div class="sl-sq t"></div>Занято</div><div class="sl-item"><div class="sl-sq s"></div>Выбрано</div></div><div class="seat-plane"><div class="cabin-lbl">A·B·C ║ D·E·F</div><div class="seat-grid">`;
+  data.forEach((row,ri)=>{
+    h+=`<div class="s-row"><div class="s-num">${ri+1}</div>`;
+    row.forEach((s,ci)=>{
+      if(ci===3)h+=`<div class="aisle"></div>`;
+      h+=`<div class="seat ${s.taken?'t':'a'}" data-sid="${s.id}" ${s.taken?'':'onclick="pickSeat(this)"'}>${s.id}</div>`;
+    });
+    h+=`</div>`;
+  });
+  h+=`</div></div><div class="seat-info" id="seatInfo">Нажмите на свободное место</div></div>`;
+  return h;
+}
+window.pickSeat=function(el){
+  document.querySelectorAll('.seat.s').forEach(s=>{s.classList.remove('s');s.classList.add('a');});
+  el.classList.remove('a');el.classList.add('s');
+  chosenSeat=el.dataset.sid;
+  document.getElementById('seatInfo').textContent=`✅ Место ${chosenSeat} выбрано`;
+};
+ 
+// ===== HOTELS =====
+const hotels={
+  japan:[{name:'Park Hyatt Tokyo',stars:5,loc:'Shinjuku',price:420,badge:'top',tags:['🏊 Pool','🍽 Restaurant','🏋 Gym'],url:'https://www.booking.com/hotel/jp/park-hyatt-tokyo.html'},{name:'Aman Tokyo',stars:5,loc:'Otemachi',price:680,badge:'top',tags:['🧘 Spa','🌆 View'],url:'https://www.booking.com/hotel/jp/aman-tokyo.html'},{name:'Citadines Shinjuku',stars:3,loc:'Shinjuku',price:98,badge:'deal',tags:['📶 WiFi','🚃 Metro'],url:'https://www.booking.com/hotel/jp/citadines-shinjuku-tokyo.html'}],
+  australia:[{name:'Park Hyatt Sydney',stars:5,loc:'The Rocks',price:520,badge:'top',tags:['🌉 Harbour','🏊 Pool'],url:'https://www.booking.com/hotel/au/park-hyatt-sydney.html'},{name:'QT Sydney',stars:4,loc:'CBD',price:230,badge:'free',tags:['🎨 Design','🍸 Bar'],url:'https://www.booking.com/hotel/au/qt-sydney.html'},{name:'Veriu Camperdown',stars:3,loc:'Camperdown',price:85,badge:'deal',tags:['📶 WiFi','🚊 Transport'],url:'https://www.booking.com/hotel/au/veriu-camperdown.html'}],
+  china:[{name:'The Peninsula Beijing',stars:5,loc:'Wangfujing',price:390,badge:'top',tags:['🧘 Spa','🍽 Restaurant'],url:'https://www.booking.com/hotel/cn/the-peninsula-beijing.html'},{name:'Rosewood Beijing',stars:5,loc:'Chaoyang',price:480,badge:'top',tags:['🏊 Pool','🌆 View'],url:'https://www.booking.com/hotel/cn/rosewood-beijing.html'},{name:'ibis Beijing Sanyuan',stars:2,loc:'Chaoyang',price:35,badge:'deal',tags:['📶 WiFi','🚌 Bus'],url:'https://www.booking.com/hotel/cn/ibis-beijing-sanyuan.html'}],
+  egypt:[{name:'Four Seasons Cairo Nile',stars:5,loc:'Garden City',price:310,badge:'top',tags:['🌊 Nile View','🏊 Pool'],url:'https://www.booking.com/hotel/eg/four-seasons-cairo-at-nile-plaza.html'},{name:'Kempinski Nile Hotel',stars:5,loc:'Garden City',price:270,badge:'free',tags:['🧘 Spa','🍽 Restaurant'],url:'https://www.booking.com/hotel/eg/kempinski-nile-hotel-garden-city-cairo.html'},{name:'ibis Cairo Citystars',stars:3,loc:'Heliopolis',price:52,badge:'deal',tags:['📶 WiFi','🚖 Transfer'],url:'https://www.booking.com/hotel/eg/ibis-cairo-citystars.html'}],
+  usa:[{name:'The Plaza Hotel',stars:5,loc:'5th Ave',price:780,badge:'top',tags:['🏛 Historic','🍽 Restaurant'],url:'https://www.booking.com/hotel/us/the-plaza.html'},{name:'1 Hotel Brooklyn Bridge',stars:4,loc:'Brooklyn',price:340,badge:'free',tags:['🏊 Pool','🌆 View','🌿 Eco'],url:'https://www.booking.com/hotel/us/1-hotel-brooklyn-bridge.html'},{name:'Pod 51 Hotel',stars:3,loc:'Midtown',price:115,badge:'deal',tags:['📶 WiFi','🚇 Metro'],url:'https://www.booking.com/hotel/us/pod-51.html'}],
+  uae:[{name:'Burj Al Arab',stars:5,loc:'Jumeirah',price:1200,badge:'top',tags:['🏖 Beach','🍽 Fine Dining','🚁 Helipad'],url:'https://www.booking.com/hotel/ae/burj-al-arab.html'},{name:'Atlantis The Palm',stars:5,loc:'Palm Jumeirah',price:540,badge:'top',tags:['🏊 Waterpark','🌊 Ocean'],url:'https://www.booking.com/hotel/ae/atlantis-the-palm.html'},{name:'Rove Dubai Marina',stars:3,loc:'Marina',price:88,badge:'deal',tags:['📶 WiFi','🚃 Metro'],url:'https://www.booking.com/hotel/ae/rove-dubai-marina.html'}],
+  uk:[{name:'The Savoy London',stars:5,loc:'Strand',price:650,badge:'top',tags:['🛎 Butler','🍽 Fine Dining'],url:'https://www.booking.com/hotel/gb/the-savoy-london.html'},{name:'citizenM Shoreditch',stars:4,loc:'Shoreditch',price:158,badge:'free',tags:['📶 WiFi','🎨 Art'],url:'https://www.booking.com/hotel/gb/citizenm-london-shoreditch.html'},{name:'Z Hotel City',stars:3,loc:'City',price:95,badge:'deal',tags:['📶 WiFi','🚇 Tube'],url:'https://www.booking.com/hotel/gb/z-hotel-city.html'}],
+  india:[{name:'Taj Mahal Palace',stars:5,loc:'Colaba',price:320,badge:'top',tags:['🌊 Sea View','🏊 Pool'],url:'https://www.booking.com/hotel/in/taj-mahal-palace-tower.html'},{name:'The Oberoi Mumbai',stars:5,loc:'Marine Drive',price:285,badge:'free',tags:['🧘 Spa','🌊 View'],url:'https://www.booking.com/hotel/in/the-oberoi-mumbai.html'},{name:'ibis Mumbai Vikhroli',stars:2,loc:'Suburbs',price:28,badge:'deal',tags:['📶 WiFi','🚇 Metro'],url:'https://www.booking.com/hotel/in/ibis-mumbai-vikhroli.html'}],
+  thailand:[{name:'Mandarin Oriental Bangkok',stars:5,loc:'Riverside',price:380,badge:'top',tags:['🌊 River View','🏊 Pool'],url:'https://www.booking.com/hotel/th/mandarin-oriental-bangkok.html'},{name:'SO Bangkok Hotel',stars:5,loc:'Sathorn',price:215,badge:'free',tags:['🏊 Pool','🎨 Design'],url:'https://www.booking.com/hotel/th/so-sofitel-bangkok.html'},{name:'ibis Bangkok Sathorn',stars:3,loc:'Sathorn',price:45,badge:'deal',tags:['📶 WiFi','🚃 BTS'],url:'https://www.booking.com/hotel/th/ibis-bangkok-sathorn.html'}],
+  brazil:[{name:'Belmond Copacabana Palace',stars:5,loc:'Copacabana',price:450,badge:'top',tags:['🏖 Beach','🏊 Pool'],url:'https://www.booking.com/hotel/br/belmond-copacabana-palace.html'},{name:'Santa Teresa MGallery',stars:5,loc:'Santa Teresa',price:280,badge:'free',tags:['🌿 Eco','🎨 Art'],url:'https://www.booking.com/hotel/br/santa-teresa.html'},{name:'ibis Botafogo',stars:3,loc:'Botafogo',price:58,badge:'deal',tags:['📶 WiFi','🌊 Beach'],url:'https://www.booking.com/hotel/br/ibis-rio-de-janeiro-botafogo.html'}],
+};
+ 
+function renderHotels(key,city){
+  const hs=hotels[key]||[];if(!hs.length)return'';
+  const stars=n=>'★'.repeat(n)+'☆'.repeat(5-n);
+  const badge=b=>b==='top'?'<span class="hc-badge top">⭐ TOP</span>':b==='deal'?'<span class="hc-badge deal">💰 Выгодно</span>':'<span class="hc-badge free">🍳 Завтрак</span>';
+  let h=`<div class="hotels-box"><div class="hotels-title">🏨 Отели в ${city}</div>`;
+  hs.forEach(ht=>{
+    h+=`<a class="hotel-card" href="${ht.url}" target="_blank" rel="noopener"><div class="hc-inner"><div><div class="hc-name">${ht.name}</div><div class="hc-loc">📍 ${ht.loc}</div><div class="hc-stars">${stars(ht.stars)}</div></div><div class="hc-right"><div class="hc-price">$${ht.price}</div><div class="hc-per">за ночь</div>${badge(ht.badge)}</div></div><div class="hc-tags">${ht.tags.map(t=>`<span class="hc-tag">${t}</span>`).join('')}</div></a>`;
+  });
+  return h+'</div>';
+}
+ 
+function renderDynamic(cl,price,fnum,timeStr,dist){
+  const da=document.getElementById('dynamicArea');
+  da.innerHTML=`<div class="divider"></div>${renderSeats()}<div class="divider"></div>${renderHotels(curTo.country,curTo.city)}`;
+  setTimeout(()=>{const sb=document.getElementById('sbScroll');sb.scrollTo({top:sb.scrollHeight,behavior:'smooth'});},150);
+}
+ 
+// ===== MODAL =====
+const modal=document.getElementById('modal');
+ 
+document.getElementById('bookBtn').addEventListener('click',()=>{
+  if(!curFrom||!curTo){alert('Выберите маршрут!');return;}
+  document.getElementById('mRoute').textContent=`${curFrom.city} → ${curTo.city}`;
+  document.getElementById('mDetail').textContent=`Рейс ${document.getElementById('tFlight').textContent} · ${document.getElementById('tTime').textContent} · ${document.getElementById('tClass').textContent}`;
+  document.getElementById('mPrice').textContent=document.getElementById('tPrice').textContent;
+  document.getElementById('modalForm').style.display='';
+  document.getElementById('resOk').classList.remove('show');
+  document.getElementById('resFail').classList.remove('show');
+  document.getElementById('formErr').textContent='';
+  document.querySelectorAll('.form-input').forEach(i=>i.classList.remove('err','ok'));
+  document.getElementById('fAgree').checked=false;
+  modal.classList.add('open');
+});
+ 
+document.getElementById('modalClose').addEventListener('click',()=>modal.classList.remove('open'));
+modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open');});
+ 
+document.getElementById('fCard').addEventListener('input',function(){let v=this.value.replace(/\D/g,'').substring(0,16);this.value=v.replace(/(.{4})/g,'$1 ').trim();});
+document.getElementById('fExp').addEventListener('input',function(){let v=this.value.replace(/\D/g,'');if(v.length>=2)v=v.substring(0,2)+'/'+v.substring(2,4);this.value=v;});
+ 
+function validate(){
+  const fields=[
+    {id:'fLast',min:2},{id:'fFirst',min:2},{id:'fMid',min:2},{id:'fBirth',min:1},
+    {id:'fSer',min:4,max:4},{id:'fNum',min:6,max:6},{id:'fNat',min:2},
+    {id:'fCard',card:true},{id:'fCName',min:4},{id:'fExp',exp:true},{id:'fCVV',min:3},
+    {id:'fEmail',email:true},{id:'fPhone',min:7},
+  ];
+  let errors=[];
+  fields.forEach(f=>{
+    const el=document.getElementById(f.id);const v=el.value.trim();let ok=true;
+    if(!v)ok=false;
+    else if(f.min&&v.replace(/\s/g,'').length<f.min)ok=false;
+    if(f.email&&v&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v))ok=false;
+    if(f.card){const d=v.replace(/\s/g,'');if(d.length!==16)ok=false;}
+    if(f.exp&&v&&!/^\d{2}\/\d{2}$/.test(v))ok=false;
+    el.classList.toggle('err',!ok);el.classList.toggle('ok',ok);
+    if(!ok)errors.push(f.id);
+  });
+  if(!document.getElementById('fAgree').checked)errors.push('agree');
+  return errors;
+}
+ 
+document.getElementById('submitBtn').addEventListener('click',()=>{
+  const errs=validate();
+  if(errs.length){document.getElementById('formErr').textContent='❌ Заполните все обязательные поля';return;}
+  document.getElementById('formErr').textContent='';
+  document.getElementById('modalForm').style.display='none';
+  const ok=Math.random()<.85;
+  if(ok){
+    document.getElementById('resOk').classList.add('show');
+    document.getElementById('resOkMsg').textContent=`Рейс ${document.getElementById('tFlight').textContent}\n${curFrom.city} → ${curTo.city}\nМесто: ${chosenSeat||'не выбрано'} · ${document.getElementById('tPrice').textContent}\nДетали на ${document.getElementById('fEmail').value}`;
+  }else{document.getElementById('resFail').classList.add('show');}
+});
+document.getElementById('resOkClose').addEventListener('click',()=>modal.classList.remove('open'));
+document.getElementById('resFailRetry').addEventListener('click',()=>{document.getElementById('modalForm').style.display='';document.getElementById('resFail').classList.remove('show');});
+</script>
+</body>
+</html>
